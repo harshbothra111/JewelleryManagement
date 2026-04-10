@@ -1,12 +1,26 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, Router, RouterModule } from '@angular/router';
+import { AuthService, User } from './core/services/auth/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, RouterModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css']
 })
 export class App {
-  protected readonly title = signal('UI');
+  title = 'Jewelry Management UI';
+
+  get currentUser(): User | null {
+    return this.authService.getCurrentUser();
+  }
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

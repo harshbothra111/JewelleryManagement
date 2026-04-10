@@ -1,0 +1,179 @@
+<div class="row mb-3">
+  <div class="col-6">
+    <h2>Create Invoice</h2>
+  </div>
+  <div class="col-6 text-end">
+    <button class="btn btn-secondary me-2" [routerLink]="backRoute">Back to Dashboard</button>
+  </div>
+</div>
+
+<form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+  <!-- Customer Details -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">
+      Customer Details
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Phone Number (10 digits)</label>
+          <input type="text" class="form-control" formControlName="customerPhone" placeholder="Mobile Number" maxlength="10" (input)="onPhoneInput($event)" [ngClass]="{'is-invalid': invoiceForm.get('customerPhone')?.touched && invoiceForm.get('customerPhone')?.invalid}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Customer Name</label>
+          <input type="text" class="form-control" formControlName="customerName" placeholder="Full Name" [ngClass]="{'is-invalid': invoiceForm.get('customerName')?.touched && invoiceForm.get('customerName')?.invalid}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-control" formControlName="customerAddress" placeholder="Optional Address">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Items -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      Invoice Items
+    </div>
+    <div class="card-body p-0" formArrayName="items">
+      
+      <!-- Desktop Table View -->
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 5%">#</th>
+              <th scope="col" style="width: 25%">Item Name</th>
+              <th scope="col" style="width: 12%">Type</th>
+              <th scope="col" style="width: 13%">Weight (g)</th>
+              <th scope="col" style="width: 15%">Rate per gm (₹)</th>
+              <th scope="col" style="width: 15%">Making Charges</th>
+              <th scope="col" style="width: 10%">Amount</th>
+              <th scope="col" style="width: 5%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of items.controls; let i=index" [formGroupName]="i">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <input type="text" class="form-control form-control-sm" formControlName="itemName" placeholder="e.g., Ring" id="desktop-input-itemName-{{i}}" (keydown)="onGridKeydown($event, i, 'itemName', 'desktop')">
+              </td>
+              <td>
+                <select class="form-select form-select-sm" formControlName="type" (change)="onTypeChange(i)" id="desktop-input-type-{{i}}" (keydown)="onGridKeydown($event, i, 'type', 'desktop')">
+                  <option value="Gold 22k">Gold 22k</option>
+                  <option value="Gold 24k">Gold 24k</option>
+                  <option value="Silver">Silver</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" class="form-control form-control-sm" formControlName="quantity" min="0.001" step="0.001" id="desktop-input-quantity-{{i}}" (keydown)="onGridKeydown($event, i, 'quantity', 'desktop')">
+              </td>
+              <td>
+                <input type="number" class="form-control form-control-sm" formControlName="rate" [readonly]="!allowRateEdit" (change)="onRateChange($event, i)" (input)="markRateDirty(i)" [title]="allowRateEdit ? 'Editable by Admin' : 'Set by Admin'" id="desktop-input-rate-{{i}}" (keydown)="onGridKeydown($event, i, 'rate', 'desktop')">
+              </td>
+              <td>
+                <input type="number" class="form-control form-control-sm" formControlName="makingCharges" min="0" (keydown)="onKeydown($event, true, i); onGridKeydown($event, i, 'makingCharges', 'desktop')" id="desktop-input-makingCharges-{{i}}">
+              </td>
+              <td class="fw-bold">
+                {{ item.get('amount')?.value | currency:'INR':'symbol' }}
+              </td>
+              <td>
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeItem(i)" [disabled]="items.length === 1" title="Remove Item">
+                  &times;
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Card View -->
+      <div class="d-block d-md-none p-3 bg-light rounded-bottom">
+        <div class="card mb-3 border-secondary shadow-sm" *ngFor="let item of items.controls; let i=index" [formGroupName]="i">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+            <span class="fw-bold text-primary">Item #{{ i + 1 }}</span>
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeItem(i)" [disabled]="items.length === 1" title="Remove Item">
+              &times;
+            </button>
+          </div>
+          <div class="card-body py-2">
+            <div class="row g-2">
+              <div class="col-12">
+                <label class="form-label form-label-sm text-muted mb-1" style="font-size: 0.8rem;">Item Name</label>
+                <input type="text" class="form-control form-control-sm" formControlName="itemName" placeholder="e.g., Ring" id="mobile-input-itemName-{{i}}" (keydown)="onGridKeydown($event, i, 'itemName', 'mobile')">
+              </div>
+              <div class="col-6">
+                <label class="form-label form-label-sm text-muted mb-1" style="font-size: 0.8rem;">Type</label>
+                <select class="form-select form-select-sm" formControlName="type" (change)="onTypeChange(i)" id="mobile-input-type-{{i}}" (keydown)="onGridKeydown($event, i, 'type', 'mobile')">
+                  <option value="Gold 22k">Gold 22k</option>
+                  <option value="Gold 24k">Gold 24k</option>
+                  <option value="Silver">Silver</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label form-label-sm text-muted mb-1" style="font-size: 0.8rem;">Weight (g)</label>
+                <input type="number" class="form-control form-control-sm" formControlName="quantity" min="0.001" step="0.001" id="mobile-input-quantity-{{i}}" (keydown)="onGridKeydown($event, i, 'quantity', 'mobile')">
+              </div>
+              <div class="col-6">
+                <label class="form-label form-label-sm text-muted mb-1" style="font-size: 0.8rem;">Rate per gm (₹)</label>
+                <input type="number" class="form-control form-control-sm" formControlName="rate" [readonly]="!allowRateEdit" (change)="onRateChange($event, i)" (input)="markRateDirty(i)" id="mobile-input-rate-{{i}}" (keydown)="onGridKeydown($event, i, 'rate', 'mobile')">
+              </div>
+              <div class="col-6">
+                <label class="form-label form-label-sm text-muted mb-1" style="font-size: 0.8rem;">Making Charges</label>
+                <input type="number" class="form-control form-control-sm" formControlName="makingCharges" min="0" (keydown)="onKeydown($event, true, i); onGridKeydown($event, i, 'makingCharges', 'mobile')" id="mobile-input-makingCharges-{{i}}">
+              </div>
+              <div class="col-12 mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
+                <span class="text-muted small">Row Amount</span>
+                <span class="fw-bold text-dark fs-5">{{ item.get('amount')?.value | currency:'INR':'symbol' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unified Add Item Button for both Desktop and Mobile -->
+      <div class="p-3 bg-light border-top rounded-bottom">
+        <button type="button" class="btn btn-outline-primary btn-sm w-100 shadow-sm fw-bold" (click)="addItem()">
+          + Add Another Item
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Totals & Tax Footer -->
+  <div class="row justify-content-end">
+    <div class="col-md-5 col-lg-4">
+      <div class="card shadow-sm border-secondary mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Sub-Total:</span>
+            <span class="fw-bold">{{ subTotal | currency:'INR':'symbol' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2 text-muted">
+            <span>CGST ({{ CGST_RATE }}%) :</span>
+            <span>+ {{ cgstAmount | currency:'INR':'symbol' }}</span>
+          </div>
+          <div class="d-flex justify-content-between pb-3 border-bottom text-muted">
+            <span>SGST ({{ SGST_RATE }}%) :</span>
+            <span>+ {{ sgstAmount | currency:'INR':'symbol' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mt-3 text-success fs-5">
+            <strong>Grand Total:</strong>
+            <strong>{{ grandTotal | currency:'INR':'symbol' }}</strong>
+          </div>
+        </div>
+      </div>
+      <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg" [disabled]="!invoiceForm.valid">
+          Save and Print Invoice
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="onClearForm()">
+          Clear Form / New Invoice
+        </button>
+        <a [routerLink]="backRoute" class="btn btn-link text-secondary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</form>
