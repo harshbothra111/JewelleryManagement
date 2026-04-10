@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/UI/browser" # Ensure this matches your Angular build output
+  publish = "dist/UI" # Ensure this matches your Angular build output
   command = "npm run build"
 
 [[redirects]]
