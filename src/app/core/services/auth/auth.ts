@@ -5,6 +5,7 @@ export interface User {
   id: number;
   username: string;
   role: 'Admin' | 'Biller';
+  displayName?: string;
 }
 
 @Injectable({
@@ -42,5 +43,13 @@ export class AuthService {
   hasRole(expectedRole: string): boolean {
     const user = this.getCurrentUser();
     return user ? user.role === expectedRole : false;
+  }
+
+  updateDisplayName(displayName: string): void {
+    const user = this.getCurrentUser();
+    if (user) {
+      const updated: User = { ...user, displayName };
+      this.currentUserSubject.next(updated);
+    }
   }
 }
