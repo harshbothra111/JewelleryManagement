@@ -1,0 +1,106 @@
+<div class="row mb-3 align-items-center">
+  <div class="col">
+    <h3 class="mb-0 fw-bold">Place Order to Karigar</h3>
+    <p class="text-muted small">Submit new manufacturing requests</p>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-outline-secondary" [routerLink]="backRoute">Back</button>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <label class="form-label text-muted small text-uppercase fw-bold">Customer Phone</label>
+          <input type="text" class="form-control form-control-lg" formControlName="customerPhone" placeholder="10-digit Phone" maxlength="10" (input)="onPhoneInput($event)" [ngClass]="{'is-invalid': orderForm.get('customerPhone')?.touched && orderForm.get('customerPhone')?.invalid}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small text-uppercase fw-bold">Customer Name</label>
+          <input type="text" class="form-control form-control-lg" formControlName="customerName" placeholder="Full Name" [ngClass]="{'is-invalid': orderForm.get('customerName')?.touched && orderForm.get('customerName')?.invalid}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small text-uppercase fw-bold">Assign Karigar</label>
+          <select class="form-select form-select-lg" formControlName="goldsmithId" [ngClass]="{'is-invalid': orderForm.get('goldsmithId')?.touched && orderForm.get('goldsmithId')?.invalid}">
+            <option value="">-- Select Karigar --</option>
+            <option *ngFor="let gs of goldsmiths" [value]="gs.id">{{ gs.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive mb-4">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 20%">Item Name</th>
+              <th style="width: 15%">Type</th>
+              <th style="width: 15%">Weight (gm)</th>
+              <th style="width: 15%">Rate/gm</th>
+              <th style="width: 15%">Making Chg.</th>
+              <th style="width: 15%">Amount</th>
+              <th style="width: 5%"></th>
+            </tr>
+          </thead>
+          <tbody formArrayName="items">
+            <tr *ngFor="let item of items.controls; let i=index" [formGroupName]="i">
+              <td>
+                <select class="form-select" formControlName="itemName" (change)="onItemValueChange(i)">
+                  <option value="Ring">Ring</option>
+                  <option value="Necklace">Necklace</option>
+                  <option value="Bangle">Bangle</option>
+                  <option value="Chain">Chain</option>
+                </select>
+              </td>
+              <td>
+                <select class="form-select" formControlName="type" (change)="onItemValueChange(i)">
+                  <option value="Gold 22k">Gold 22k</option>
+                  <option value="Gold 24k">Gold 24k</option>
+                  <option value="Silver">Silver</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" class="form-control text-end" formControlName="quantity" min="0.001" step="0.001" placeholder="Weight">
+              </td>
+              <td>
+                <input type="number" class="form-control text-end" formControlName="rate" min="0" [readonly]="!allowRateEdit" placeholder="Rate">
+              </td>
+              <td>
+                <input type="number" class="form-control text-end" formControlName="makingCharges" min="0" placeholder="Making">
+              </td>
+              <td class="text-end fw-bold text-primary">{{ item.get('amount')?.value | currency:'INR':'symbol' }}</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-light text-danger" (click)="removeItem(i)" [disabled]="items.length === 1"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-3 text-end">
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()">+ Add Item</button>
+        </div>
+      </div>
+
+      <div class="row pt-4 border-top">
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+          <div class="bg-light p-4 rounded text-end">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Sub Total</span>
+              <span class="fw-bold">{{ subTotal | currency:'INR':'symbol' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">GST (3%)</span>
+              <span>+ {{ cgstAmount + sgstAmount | currency:'INR':'symbol' }}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="h5 mb-0">Grand Total</span>
+              <span class="h4 fw-bold text-primary mb-0">{{ grandTotal | currency:'INR':'symbol' }}</span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="!orderForm.valid">Submit Request</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

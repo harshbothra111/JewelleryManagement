@@ -26,11 +26,9 @@ export const routes: Routes = [
         loadComponent: () => import('./shared/components/invoice-form/invoice-form').then(m => m.InvoiceForm),
         data: { allowRateEdit: true, backRoute: '/admin/dashboard' }
       },
-      {
-        path: 'order',
-        loadComponent: () => import('./shared/components/order-form/order-form').then(m => m.OrderForm),
-        data: { allowRateEdit: true, backRoute: '/admin/dashboard' }
-      }
+      { path: 'order/new', loadComponent: () => import('./shared/components/new-order/new-order').then(m => m.NewOrder), data: { allowRateEdit: true, backRoute: '/admin/dashboard' } },
+      { path: 'order/summary', loadComponent: () => import('./shared/components/order-summary/order-summary').then(m => m.OrderSummary), data: { backRoute: '/admin/dashboard' } },
+      { path: 'order/karigar', loadComponent: () => import('./shared/components/order-by-karigar/order-by-karigar').then(m => m.OrderByKarigar), data: { backRoute: '/admin/dashboard' } }
       // Future Admin features: reports, users, inventory master etc.
     ]
   },
@@ -49,11 +47,9 @@ export const routes: Routes = [
         loadComponent: () => import('./shared/components/invoice-form/invoice-form').then(m => m.InvoiceForm),
         data: { allowRateEdit: false, backRoute: '/biller/dashboard' }
       },
-      {
-        path: 'order',
-        loadComponent: () => import('./shared/components/order-form/order-form').then(m => m.OrderForm),
-        data: { allowRateEdit: false, backRoute: '/biller/dashboard' }
-      }
+      { path: 'order/new', loadComponent: () => import('./shared/components/new-order/new-order').then(m => m.NewOrder), data: { allowRateEdit: false, backRoute: '/biller/dashboard' } },
+      { path: 'order/summary', loadComponent: () => import('./shared/components/order-summary/order-summary').then(m => m.OrderSummary), data: { backRoute: '/biller/dashboard' } },
+      { path: 'order/karigar', loadComponent: () => import('./shared/components/order-by-karigar/order-by-karigar').then(m => m.OrderByKarigar), data: { backRoute: '/biller/dashboard' } }
       // Future Biller features: billing, ordering new items
     ]
   },

@@ -1,0 +1,77 @@
+<!-- History and Goldsmith View -->
+<div class="card shadow-sm">
+  <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+    <span>Order History</span>
+    <div *ngIf="viewMode === 'goldsmith-history'" class="w-50">
+      <select class="form-select form-select-sm" (change)="loadGoldsmithHistory($event)">
+        <option value="">-- Switch Karigar --</option>
+        <option *ngFor="let gs of goldsmiths" [value]="gs.id">{{ gs.name }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div *ngIf="allOrders.length === 0" class="p-4 text-center text-muted">
+      No orders found.
+    </div>
+    <div class="accordion" id="ordersAccordion" *ngIf="allOrders.length > 0">
+      <div class="accordion-item" *ngFor="let order of allOrders; let i = index">
+        <h2 class="accordion-header" [id]="'heading' + i">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse' + i" [attr.aria-expanded]="false" [attr.aria-controls]="'collapse' + i">
+            <strong class="me-3">{{ order.id }}</strong>
+            <span class="badge me-3" 
+                  [ngClass]="{
+                    
+                    'bg-warning text-dark': order.status === 'Pending',
+                    'bg-success': order.status === 'Fulfilled',
+                    'bg-danger': order.status === 'Cancelled'
+                  }">{{ order.status }}</span>
+            <span class="text-primary me-auto">{{ order.goldsmithName }} - {{ order.customerName }}</span>
+            <span class="fw-bold">{{ order.grandTotal | currency:'INR':'symbol' }}</span>
+          </button>
+        </h2>
+        <div [id]="'collapse' + i" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading' + i">
+          <div class="accordion-body p-0">
+            <div class="px-3 py-2 bg-light border-bottom">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>Timeline:</strong>
+                <div class="d-flex gap-2">
+                  <span *ngFor="let track of order.statusHistory" class="badge bg-secondary">
+                    {{ track.status }} ({{ track.date }})
+                  </span>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                
+                <button class="btn btn-sm btn-success" *ngIf="order.status === 'Pending'" (click)="changeOrderStatus(order.id!, 'Fulfilled')">Accept Delivery (Fulfill)</button>
+                <button class="btn btn-sm btn-danger" *ngIf="order.status !== 'Cancelled' && order.status !== 'Fulfilled'" (click)="changeOrderStatus(order.id!, 'Cancelled')">Cancel Order</button>
+                <button class="btn btn-sm btn-primary ms-auto" *ngIf="order.status === 'Fulfilled'" (click)="generateTaxInvoice(order)">Print Tax Invoice</button>
+              </div>
+            </div>
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Item</th>
+                  <th>Type</th>
+                  <th>Weight</th>
+                  <th>Rate</th>
+                  <th>Making</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of order.items">
+                  <td>{{ item.itemName }}</td>
+                  <td>{{ item.type }}</td>
+                  <td>{{ item.quantity | number:'1.3-3' }} g</td>
+                  <td>{{ item.rate | currency:'INR':'symbol' }}</td>
+                  <td>{{ item.makingCharges | currency:'INR':'symbol' }}</td>
+                  <td>{{ item.amount | currency:'INR':'symbol' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

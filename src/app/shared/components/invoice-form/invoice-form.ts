@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { PricingService } from '../../../core/services/pricing/pricing';
+import { PrintService } from '../../../core/services/print/print.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -28,7 +29,7 @@ export class InvoiceForm implements OnInit, OnDestroy {
   sgstAmount = 0;
   grandTotal = 0;
 
-  constructor(private fb: FormBuilder, private pricingService: PricingService) {}
+  constructor(private fb: FormBuilder, private pricingService: PricingService, private printService: PrintService) {}
 
   ngOnInit(): void {
     this.invoiceForm = this.fb.group({
@@ -251,8 +252,16 @@ export class InvoiceForm implements OnInit, OnDestroy {
 
       console.log('Invoice Submitted!', invoiceData);
       this.generateInvoicePrint(invoiceData);
-      
-      // Removed form reset as requested
+
+      // Reset form after generating the invoice print
+      this.invoiceForm.reset();
+      this.invoiceForm.patchValue({
+        customerName: '',
+        customerPhone: '',
+        customerAddress: ''
+      });
+      this.items.clear();
+      this.addItem();
     } else {
       this.invoiceForm.markAllAsTouched();
     }
@@ -274,133 +283,6 @@ export class InvoiceForm implements OnInit, OnDestroy {
   }
 
   private generateInvoicePrint(data: any): void {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Please allow popups to print the invoice.');
-      return;
-    }
-
-    const customer = data.formData;
-    const items = data.formData.items;
-    const totals = data.totals;
-
-    let itemsHtml = '';
-    items.forEach((item: any, index: number) => {
-      itemsHtml += `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${item.itemName}</td>
-          <td>${item.type}</td>
-          <td>${item.quantity.toFixed(3)}</td>
-          <td>₹${item.rate.toFixed(2)}</td>
-          <td>₹${item.makingCharges.toFixed(2)}</td>
-          <td>₹${item.amount.toFixed(2)}</td>
-        </tr>
-      `;
-    });
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Tax Invoice</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #333; }
-          .invoice-container { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-          .header { text-align: center; border-bottom: 2px solid #555; padding-bottom: 10px; margin-bottom: 20px; }
-          .header h1 { margin: 0; color: #444; text-transform: uppercase; font-size: 24px; }
-          .header h3 { margin: 5px 0 0; color: #777; font-weight: normal; }
-          .info-section { display: flex; justify-content: space-between; margin-bottom: 20px; }
-          .info-block { width: 48%; }
-          .info-block p { margin: 5px 0; }
-          .info-title { font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
-          th:nth-child(2), td:nth-child(2),
-          th:nth-child(3), td:nth-child(3) { text-align: left; }
-          th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; font-size: 12px; }
-          .totals { width: 50%; float: right; margin-bottom: 20px; }
-          .totals table th, .totals table td { border: none; padding: 5px 10px; }
-          .totals table tr.grand-total { border-top: 2px solid #333; font-weight: bold; font-size: 16px; }
-          .clear { clear: both; }
-          .footer { text-align: center; margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; font-size: 12px; color: #777; }
-        </style>
-      </head>
-      <body>
-        <div class="invoice-container">
-          <div class="header">
-            <h1>Tax Invoice</h1>
-            <h3>Your Jewellery Store Name</h3>
-          </div>
-          
-          <div class="info-section">
-            <div class="info-block">
-              <div class="info-title">Billed To:</div>
-              <p><strong>Name:</strong> ${customer.customerName}</p>
-              <p><strong>Phone:</strong> ${customer.customerPhone}</p>
-              ${customer.customerAddress ? `<p><strong>Address:</strong> ${customer.customerAddress}</p>` : ''}
-            </div>
-            <div class="info-block" style="text-align: right;">
-              <div class="info-title">Invoice Details:</div>
-              <p><strong>Date:</strong> ${data.date}</p>
-            </div>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Item Description</th>
-                <th>Type</th>
-                <th>Weight (gm)</th>
-                <th>Rate/gm</th>
-                <th>Making Chg.</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-
-          <div class="totals">
-            <table>
-              <tr>
-                <td style="text-align: left;">Sub Total</td>
-                <td>₹${totals.subTotal.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <td style="text-align: left;">CGST (1.5%)</td>
-                <td>₹${totals.cgst.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <td style="text-align: left;">SGST (1.5%)</td>
-                <td>₹${totals.sgst.toFixed(2)}</td>
-              </tr>
-              <tr class="grand-total">
-                <td style="text-align: left;">Grand Total</td>
-                <td>₹${totals.grandTotal.toFixed(2)}</td>
-              </tr>
-            </table>
-          </div>
-          <div class="clear"></div>
-          
-          <div class="footer">
-            <p>Thank you for your business!</p>
-            <p>Subject to local jurisdiction.</p>
-          </div>
-        </div>
-        <script>
-          window.onload = function() {
-            window.print();
-          };
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    this.printService.printTaxInvoice(data);
   }
 }

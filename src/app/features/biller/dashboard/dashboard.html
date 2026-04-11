@@ -4,49 +4,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biller Dashboard</title>
-    <!-- Add your CSS links here -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Use a modern Bootstrap version -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .dashboard-header { padding: 2rem 0; border-bottom: 1px solid #e9ecef; margin-bottom: 2rem; background: #fff; }
+        .stat-card { border: none; border-left: 4px solid #0d6efd; border-radius: 0.5rem; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important; }
+        .stat-card.success { border-left-color: #198754; }
+        .stat-card.warning { border-left-color: #ffc107; }
+        .stat-card.info { border-left-color: #0dcaf0; }
+        .action-card { border: none; border-radius: 0.75rem; overflow: hidden; }
+        .action-card .card-header { background-color: transparent; border-bottom: 1px solid #f1f1f1; font-weight: 600; padding: 1.25rem 1.5rem; }
+        .action-card .card-body { padding: 1.5rem; }
+        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
+        .bg-light-success { background-color: #d1e7dd; color: #0f5132; }
+        .bg-light-warning { background-color: #fff3cd; color: #664d03; }
+        .btn-modern { border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 500; }
+        .table-custom th { color: #6c757d; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; border-bottom: 2px solid #e9ecef; }
+        .table-custom td { vertical-align: middle; border-bottom: 1px solid #f1f1f1; color: #495057; }
+    </style>
 </head>
 <body>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12 mb-4">
-            <h2>Biller Dashboard</h2>
-            <p class="text-muted">Manage daily billing and stock requirements.</p>
+<div class="dashboard-header shadow-sm">
+    <div class="container-fluid px-4">
+        <h2 class="fw-bold mb-1"><i class="bi bi-display me-2 text-primary"></i>Biller Workspace</h2>
+        <p class="text-muted mb-0">Manage daily billing operations, stock requirements, and karigar coordination.</p>
+    </div>
+</div>
+
+<div class="container-fluid px-4 mb-5">
+    
+    <!-- Analytics Header -->
+    <div class="row align-items-center mb-3">
+        <div class="col"><h5 class="fw-bold text-dark mb-0">Overview</h5></div>
+    </div>
+
+    <!-- Overview Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card info shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted fw-semibold mb-1">Recent Orders</p>
+                            <h2 class="fw-bold mb-0 text-dark">{{ recentOrders.length }}</h2>
+                        </div>
+                        <div class="icon-box bg-light-info text-info mb-0">
+                            <i class="bi bi-bag-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Placeholders for future stats -->
+        <div class="col-md-4">
+            <div class="card stat-card success shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted fw-semibold mb-1">Daily Invoices</p>
+                            <h2 class="fw-bold mb-0 text-dark">--</h2>
+                        </div>
+                        <div class="icon-box bg-light-success mb-0">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card warning shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted fw-semibold mb-1">Pending with Karigar</p>
+                            <h2 class="fw-bold mb-0 text-dark">--</h2>
+                        </div>
+                        <div class="icon-box bg-light-warning mb-0">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    New Bill
+    <!-- Operations Header -->
+    <div class="row align-items-center mb-3 mt-5">
+        <div class="col"><h5 class="fw-bold text-dark mb-0">Operations</h5></div>
+    </div>
+
+    <!-- Essential Actions -->
+    <div class="row g-4 mb-5">
+        <!-- Customer Billing -->
+        <div class="col-lg-6">
+            <div class="card action-card shadow-sm h-100">
+                <div class="card-header border-0 pb-0">
+                    <i class="bi bi-person-badge text-success me-2"></i>Customer Management
                 </div>
                 <div class="card-body">
-                    <p class="card-text">Start a new billing session for a customer.</p>
-                    <button class="btn btn-primary" routerLink="/biller/invoice">Create Invoice</button>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="icon-box bg-light-success flex-shrink-0 me-3">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Point of Sale (Billing)</h5>
+                            <p class="text-muted small mb-0">Start a new billing session, generate a tax invoice, and print receipts for customers.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top">
+                        <button class="btn btn-success btn-modern w-100" routerLink="/biller/invoice">
+                            <i class="bi bi-plus-circle me-2"></i>Create New Invoice
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-warning">
-                    Stock Requests
+        <!-- Karigar Management -->
+        <div class="col-lg-6">
+            <div class="card action-card shadow-sm h-100">
+                <div class="card-header border-0 pb-0">
+                    <i class="bi bi-tools text-warning me-2"></i>Karigar Operations
                 </div>
                 <div class="card-body">
-                    <p class="card-text">Request new items from the Admin wholesale orders.</p>
-                    <button class="btn btn-outline-dark">Place Order</button>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="icon-box bg-light-warning flex-shrink-0 me-3">
+                            <i class="bi bi-clipboard-data"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Order Placement & History</h5>
+                            <p class="text-muted small mb-0">Place order requests for manufacturing, view historical orders, or track by specific Karigar.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex gap-2 flex-wrap">
+                        <button class="btn btn-warning btn-modern flex-grow-1" routerLink="/biller/order/new">
+                            <i class="bi bi-send-plus me-2"></i>Place Order
+                        </button>
+                        <button class="btn btn-outline-secondary btn-modern flex-grow-1" routerLink="/biller/order/summary">
+                            <i class="bi bi-view-list me-2"></i>Overview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-modern flex-grow-1" routerLink="/biller/order/karigar">
+                            <i class="bi bi-person-lines-fill me-2"></i>By Karigar
+                        </button>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Order Summary Table -->
+    <div class="card action-card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <span><i class="bi bi-clock-history text-secondary me-2"></i>Recent Activity Log</span>
+            <button class="btn btn-sm btn-light border" routerLink="/biller/order/summary">View All</button>
+        </div>
+        <div class="card-body p-0">
+            <div *ngIf="recentOrders.length === 0" class="p-5 text-center text-muted">
+                 <i class="bi bi-inbox fs-1 text-light mb-3"></i>
+                 <p class="mb-0">No recent orders found.</p>
+            </div>
+            <div class="table-responsive" *ngIf="recentOrders.length > 0">   
+                <table class="table table-custom table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Assigned Karigar</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let order of recentOrders">
+                            <td class="ps-4 fw-bold text-primary">#{{ order.id }}</td>
+                            <td>{{ order.date }}</td>
+                            <td class="fw-medium">{{ order.customerName }}</td>
+                            <td><span class="badge bg-light text-dark border"><i class="bi bi-person me-1"></i>{{ order.goldsmithName }}</span></td>
+                            <td class="fw-bold">{{ order.grandTotal | currency:'INR':'symbol' }}</td>
+                            <td>
+                                <span class="badge rounded-pill"
+                                      [ngClass]="{
+                                        
+                                        'bg-warning text-dark': order.status === 'Pending',
+                                        'bg-success': order.status === 'Fulfilled',
+                                        'bg-danger': order.status === 'Cancelled'
+                                      }">{{ order.status }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add your JavaScript links here -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+
