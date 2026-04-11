@@ -13,8 +13,10 @@
           <a class="nav-link" routerLink="/biller/dashboard" routerLinkActive="active">Biller Dashboard</a>
         </li>
       </ul>
-      <div class="d-flex text-white align-items-center">
-        <span class="me-3">Hello, {{ currentUser.username | titlecase }} ({{ currentUser.role }})</span>
+      <div class="d-flex text-white align-items-center gap-2">
+        <a class="nav-link text-white" [routerLink]="currentUser.role === 'Admin' ? '/admin/profile' : '/biller/profile'" routerLinkActive="active">
+          Hello, {{ currentUser.username | titlecase }} ({{ currentUser.role }})
+        </a>
         <button class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
       </div>
     </div>

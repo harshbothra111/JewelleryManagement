@@ -1,0 +1,94 @@
+<!-- Back button row -->
+<div class="row mb-4">
+  <div class="col">
+    <button class="btn btn-outline-secondary btn-sm" [routerLink]="dashboardRoute">
+      <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </button>
+  </div>
+</div>
+
+<!-- Profile Card -->
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+
+    <!-- Avatar + Name header -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body text-center py-5">
+        <div class="profile-avatar mx-auto mb-3">
+          {{ initials }}
+        </div>
+        <h3 class="fw-bold mb-1" *ngIf="currentUser">
+          {{ currentUser.username | titlecase }}
+        </h3>
+        <span class="badge rounded-pill bg-primary px-3 py-2" *ngIf="currentUser">
+          {{ currentUser.role }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Account Details -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-person-lines-fill me-2 text-secondary"></i>Account Details
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4 text-muted">User ID</dt>
+          <dd class="col-sm-8" *ngIf="currentUser">#{{ currentUser.id }}</dd>
+
+          <dt class="col-sm-4 text-muted">Username</dt>
+          <dd class="col-sm-8" *ngIf="currentUser">{{ currentUser.username }}</dd>
+
+          <dt class="col-sm-4 text-muted">Role</dt>
+          <dd class="col-sm-8" *ngIf="currentUser">{{ currentUser.role }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Edit Display Name -->
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-pencil-square me-2 text-secondary"></i>Edit Profile
+      </div>
+      <div class="card-body">
+
+        <div *ngIf="successMessage" class="alert alert-success py-2">
+          <i class="bi bi-check-circle me-2"></i>{{ successMessage }}
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSave()">
+          <div class="mb-3">
+            <label for="displayName" class="form-label fw-semibold">Display Name</label>
+            <input
+              type="text"
+              id="displayName"
+              class="form-control"
+              formControlName="displayName"
+              placeholder="Enter your display name"
+              [ngClass]="{
+                'is-invalid':
+                  profileForm.get('displayName')?.touched &&
+                  profileForm.get('displayName')?.invalid
+              }"
+            />
+            <div class="invalid-feedback">
+              Display name must be between 3 and 50 characters.
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="profileForm.invalid || profileForm.pristine"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
